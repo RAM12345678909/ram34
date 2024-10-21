@@ -1,0 +1,221 @@
+#include <iostream>
+#include <math.h>
+#include <cmath>
+#include <vector>
+using namespace std;
+
+// Caeser Cipher
+string encryptedText(string plainText, int shiftValue) {
+    string cipherText;
+    char base, encryptedChar;
+
+    for (char ch : plainText) {         // Getting word one by one from text
+        
+        if (isalpha(ch)) {              // Checking if text is character
+            base = (isupper(ch)) ? 'A' : 'a';       // Checking if character is lowercase or uppercase
+
+            encryptedChar = ((ch - base + shiftValue) % 26) + base;     // Applying formula for encryption
+
+            cipherText += encryptedChar;
+        } else {
+            cipherText += ch;
+        }
+    }
+
+    return cipherText;      // Returning Ciphertext
+}
+
+// Polyalphabetic
+string encryptVigenere(string plaintext, string keyword) {
+    string ciphertext = "";
+    int keyLength = keyword.length();           // Getting length
+    int textLength = plaintext.length();
+    char encryptedChar;
+
+    for (int i = 0; i < textLength; ++i) {
+        char plainChar = plaintext[i];
+        char keyChar = keyword[i % keyLength];
+        
+        if (isalpha(plainChar)) {           // Checking if text is character or not
+            plainChar = toupper(plainChar);
+            keyChar = toupper(keyChar);
+            encryptedChar = 'A' + ((plainChar - 'A' + keyChar - 'A') % 26);     // Applying formula
+        } else {
+            encryptedChar = plainChar;
+        }
+        ciphertext += encryptedChar;
+    }
+    return ciphertext;      // Returning Ciphertext
+}
+
+// Row/Column Transpose
+string encrypt(string message, int rows, int cols) {
+    int extraChars = rows * cols - message.length();       // Determine the number of padding characters needed
+    if (extraChars > 0) {
+        message.append(extraChars, ' ');                    // Adding space to message
+    }
+
+    vector<vector<char>> matrix(rows, vector<char>(cols));      // Create the matrix
+    int index = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = message[index++];
+        }
+    }
+    
+    cout << "Original matrix: " << endl;        // Print the matrix
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    vector<vector<char>> transposed(cols, vector<char>(rows));      // Transpose the matrix
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
+            transposed[i][j] = matrix[j][i];
+        }
+    }
+    
+    cout << "Transposed matrix: " << endl;          // Print the transposed matrix
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
+            cout << transposed[i][j] << " ";
+        }
+        cout << endl;
+    }
+    
+    string cipherMessage;               // Read the cipher message from the transposed matrix
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
+            cipherMessage.push_back(transposed[i][j]);
+        }
+    }
+    
+    return cipherMessage;
+}
+
+string decrypt(string cipherMessage, int rows, int cols) {
+    int extraChars = rows * cols - cipherMessage.length();      // Determine the number of padding characters
+    if (extraChars > 0) {
+        cipherMessage.append(extraChars, ' ');
+    }
+    
+    vector<vector<char>> matrix(cols, vector<char>(rows));      // Create the matrix
+    int index = 0;
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
+            matrix[i][j] = cipherMessage[index++];
+        }
+    }
+    
+    vector<vector<char>> transposed(rows, vector<char>(cols));      // Transpose the matrix
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            transposed[i][j] = matrix[j][i];
+        }
+    }
+    
+    string originalMessage;             // Read the original message from the transposed matrix
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            originalMessage.push_back(transposed[i][j]);            // Pushing back the transposed matrix
+        }
+    }
+    
+    return originalMessage;         // Returning original message
+}
+
+
+int main() {
+    int operationType, technique;
+
+    cout << "1. Symmetric Key Encryption";
+    cout << "\n2. Asymmetric Key Encryption";
+    cout << "\nSelect operation type: ";
+    cin >> operationType;       // Getting operation type
+
+    if (operationType == 1) {
+        cout << "\n1. Caeser Cipher";
+        cout << "\n2. Polyalphabetic Cipher";
+        cout << "\n3. Row/Column Transposition";
+        cout << "\nEnter technique: "; 
+        cin >> technique;               // Getting technique
+
+        if (technique == 1) {
+            string plainText, cipherText;
+            int shiftValue;
+
+            cout << "Enter the plain text: ";
+            cin >> plainText;
+
+            cout << "Enter shift value: ";
+            cin >> shiftValue;
+
+            cipherText = encryptedText(plainText, shiftValue);
+
+            cout << "Encrypted text: " << cipherText;
+        } else if (technique == 2) {
+            string text, keyword;
+            
+            cout << "Enter the text to encrypt: ";
+            cin.ignore();
+            getline(cin, text);
+            cout << "Enter the keyword: ";
+            getline(cin, keyword);
+            text = encryptVigenere(text, keyword);
+            cout << "Encrypted Text: " << text << endl;
+        } else {
+            string message = "HELLO WORLD";
+            int rows = 4;
+            int cols = 3;
+            
+            cout << "Original message: " << message << endl;
+            
+            string cipherMessage = encrypt(message, rows, cols);
+            cout << "Cipher message: " << cipherMessage << endl;
+            
+            string originalMessage = decrypt(cipherMessage, rows, cols);
+            cout << "Decrypted message: " << originalMessage << endl;
+        }
+
+    } else if (operationType == 2) {
+        long long int g = 3;
+        long long int n = 17;
+        long long int a = 15, b = 13;
+        long long int pa, pb, ga, gb;
+        long long int ar, br;
+
+        cout << "Value of g: " << g;        // Common keys
+        cout << "\nValue of n: " << n;
+
+        cout << "\n\nAlice's private key: " << a;       // Private keys
+        cout << "\nBob's private key: " << b;
+
+        pa = (long long int)pow(g, a);          // Calculating power 1st time
+        pb = (long long int)pow(g, b);
+
+        ga = pa % n;                            // Applying modulus formula
+        gb = pb % n;
+
+        cout << "\n\nAlice's generated values: " << ga;
+        cout << "\nBob's generated values: " << gb;
+
+        ar = gb;                // Keys exchanged here
+        br = ga;
+
+        cout << "\n\nAlice received: " << ar;
+        cout << "\nBob received: " << br;
+
+        // Calculating values after receiving
+        pa = (long long int)pow(ar, a);         // Calculating power 2nd time
+        pb = (long long int)pow(br, b);
+
+        ga = pa % n;                            // Applying modulus formula
+        gb = pb % n;
+
+        cout << "\n\nFinal @ Alice: " << ga;    // Final keys
+        cout << "\nFinal @ Bob: " << gb;
+    }
+}
